@@ -1,0 +1,732 @@
+local code = [[-- SBBF v9.5 - Class Launcher (Disruptor / Paintball)
+-- Both scripts are fully embedded - just execute this
+
+print("SBBF Launcher starting...")
+
+local success, err = pcall(function()
+    local CoreGui = game:GetService("CoreGui")
+    
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "SBBF_Launcher"
+    sg.ResetOnSpawn = false
+    sg.Parent = CoreGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 340, 0, 240)
+    frame.Position = UDim2.new(0.5, -170, 0.5, -120)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Draggable = true
+    frame.Parent = sg
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 16)
+    corner.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(0, 170, 255)
+    stroke.Thickness = 2
+    stroke.Parent = frame
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 60)
+    title.BackgroundTransparency = 1
+    title.Text = "SBBF v9.5 - Choose Class"
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 26
+    title.TextColor3 = Color3.new(1,1,1)
+    title.Parent = frame
+
+    -- Disruptor button
+    local btnD = Instance.new("TextButton")
+    btnD.Size = UDim2.new(0.8, 0, 0, 80)
+    btnD.Position = UDim2.new(0.1, 0, 0.28, 0)
+    btnD.BackgroundColor3 = Color3.fromRGB(90, 140, 255)
+    btnD.Text = "Disruptor"
+    btnD.Font = Enum.Font.GothamBold
+    btnD.TextSize = 32
+    btnD.TextColor3 = Color3.new(1,1,1)
+    btnD.Parent = frame
+
+    local cd = Instance.new("UICorner")
+    cd.CornerRadius = UDim.new(0, 12)
+    cd.Parent = btnD
+
+    -- Paintball button
+    local btnP = Instance.new("TextButton")
+    btnP.Size = UDim2.new(0.8, 0, 0, 80)
+    btnP.Position = UDim2.new(0.1, 0, 0.62, 0)
+    btnP.BackgroundColor3 = Color3.fromRGB(0, 200, 120)
+    btnP.Text = "Paintball"
+    btnP.Font = Enum.Font.GothamBold
+    btnP.TextSize = 32
+    btnP.TextColor3 = Color3.new(1,1,1)
+    btnP.Parent = frame
+
+    local cp = Instance.new("UICorner")
+    cp.CornerRadius = UDim.new(0, 12)
+    cp.Parent = btnP
+
+    -- Hover effect
+    local function addHover(btn, baseColor)
+        btn.MouseEnter:Connect(function()
+            btn.BackgroundColor3 = baseColor:Lerp(Color3.new(1,1,1), 0.15)
+        end)
+        btn.MouseLeave:Connect(function()
+            btn.BackgroundColor3 = baseColor
+        end)
+    end
+
+    addHover(btnD, Color3.fromRGB(90, 140, 255))
+    addHover(btnP, Color3.fromRGB(0, 200, 120))
+
+    print("Launcher UI created - should be visible now")
+
+    -- ==================== Disruptor script (your premium UI version) ====================
+    local disruptorCode = [[
+-- SBBF v9.5 - Premium UI Edition (Disruptor)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RS = game:GetService("ReplicatedStorage")
+local P = Players.LocalPlayer
+
+local YOUR_CLASS = "Disruptor"
+
+local SPEED_MODES = {
+    Fast = 0.08,
+    Medium = 0.18,
+    Slow = 0.35
+}
+local CurrentSpeed = SPEED_MODES.Medium
+local ActiveSpeedButton = nil
+
+local CFG = {
+    KillAura = true,
+    InfStamina = true,
+    PlayerSpeed = false
+}
+
+local sg = Instance.new("ScreenGui", game.CoreGui)
+sg.Name = "SBBF_Premium_UI"
+local main = Instance.new("Frame", sg)
+main.Size = UDim2.new(0,440,0,520)
+main.Position = UDim2.new(0.5,-220,0.5,-260)
+main.BackgroundColor3 = Color3.fromRGB(16,16,24)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,18)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(90,140,255)
+stroke.Transparency = 0.4
+TweenService:Create(stroke, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Transparency = 0.15}):Play()
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,52)
+title.BackgroundColor3 = Color3.fromRGB(80,130,255)
+title.Text = "SBBF v9.5 — Premium"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextColor3 = Color3.new(1,1,1)
+title.BorderSizePixel = 0
+Instance.new("UICorner", title).CornerRadius = UDim.new(0,18)
+
+local close = Instance.new("TextButton", main)
+close.Size = UDim2.new(0,38,0,38)
+close.Position = UDim2.new(1,-46,0,7)
+close.Text = "✕"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 16
+close.TextColor3 = Color3.new(1,1,1)
+close.BackgroundColor3 = Color3.fromRGB(255,90,90)
+close.BorderSizePixel = 0
+Instance.new("UICorner", close).CornerRadius = UDim.new(0,10)
+close.MouseButton1Click:Connect(function()
+    sg:Destroy()
+end)
+
+local y = 70
+local function glowButton(btn)
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = btn.BackgroundColor3:Lerp(Color3.fromRGB(255,255,255), 0.1)
+        }):Play()
+    end)
+end
+
+local function createToggle(text, default, callback)
+    local btn = Instance.new("TextButton", main)
+    btn.Size = UDim2.new(0.9,0,0,44)
+    btn.Position = UDim2.new(0.05,0,0,y)
+    y = y + 54
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.BorderSizePixel = 0
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,12)
+    local state = default
+    local function refresh()
+        btn.Text = (state and "ON  | " or "OFF | ") .. text
+        btn.BackgroundColor3 = state and Color3.fromRGB(0,180,120) or Color3.fromRGB(70,70,85)
+    end
+    refresh()
+    glowButton(btn)
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        refresh()
+        callback(state)
+    end)
+end
+
+createToggle("Kill Aura", true, function(v) CFG.KillAura = v end)
+createToggle("Infinite Stamina", true, function(v) CFG.InfStamina = v end)
+
+local speedLabel = Instance.new("TextLabel", main)
+speedLabel.Size = UDim2.new(1,0,0,30)
+speedLabel.Position = UDim2.new(0,0,0,y)
+speedLabel.Text = "Kill Aura Speed Mode"
+speedLabel.Font = Enum.Font.GothamBold
+speedLabel.TextSize = 14
+speedLabel.TextColor3 = Color3.fromRGB(200,200,220)
+speedLabel.BackgroundTransparency = 1
+y = y + 36
+
+local function createSpeedButton(name, delay)
+    local btn = Instance.new("TextButton", main)
+    btn.Size = UDim2.new(0.9,0,0,42)
+    btn.Position = UDim2.new(0.05,0,0,y)
+    y = y + 52
+    btn.Text = name
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.BackgroundColor3 = Color3.fromRGB(60,60,75)
+    btn.BorderSizePixel = 0
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,12)
+    glowButton(btn)
+    btn.MouseButton1Click:Connect(function()
+        CurrentSpeed = delay
+        if ActiveSpeedButton then
+            ActiveSpeedButton.BackgroundColor3 = Color3.fromRGB(60,60,75)
+        end
+        btn.BackgroundColor3 = Color3.fromRGB(100,160,255)
+        ActiveSpeedButton = btn
+    end)
+    return btn
+end
+
+ActiveSpeedButton = createSpeedButton("🙂 Medium (Human-like)", SPEED_MODES.Medium)
+ActiveSpeedButton.BackgroundColor3 = Color3.fromRGB(100,160,255)
+createSpeedButton("⚡ Fast", SPEED_MODES.Fast)
+createSpeedButton("🐢 Slow", SPEED_MODES.Slow)
+
+local defaultSpeed = 16
+createToggle("Player Speed", false, function(v)
+    CFG.PlayerSpeed = v
+    if not v and P.Character and P.Character:FindFirstChild("Humanoid") then
+        P.Character.Humanoid.WalkSpeed = defaultSpeed
+    end
+end)
+
+local sliderBg = Instance.new("Frame", main)
+sliderBg.Size = UDim2.new(0.9,0,0,14)
+sliderBg.Position = UDim2.new(0.05,0,0,y)
+sliderBg.BackgroundColor3 = Color3.fromRGB(60,60,70)
+sliderBg.BorderSizePixel = 0
+Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
+
+local sliderFill = Instance.new("Frame", sliderBg)
+sliderFill.Size = UDim2.new(0.5,0,1,0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(100,160,255)
+sliderFill.BorderSizePixel = 0
+Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1,0)
+
+local dragging = false
+sliderBg.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+end)
+sliderBg.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(i)
+    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+        local pct = math.clamp(
+            (i.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X,
+            0, 1
+        )
+        sliderFill.Size = UDim2.new(pct,0,1,0)
+        if CFG.PlayerSpeed and P.Character and P.Character:FindFirstChild("Humanoid") then
+            P.Character.Humanoid.WalkSpeed = math.floor(10 + pct * 30)
+        end
+    end
+end)
+
+local Remotes = RS:WaitForChild("Remotes")
+local Charge = Remotes:WaitForChild("Charge")
+local Activate = Remotes:WaitForChild("Activate")
+local Damage = Remotes:WaitForChild("Damage")
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if CFG.InfStamina and P:FindFirstChild("Energy") then
+            P.Energy.Value = math.huge
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(CurrentSpeed)
+        if not CFG.KillAura then continue end
+        local char = P.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
+        if char.Humanoid.Health <= 0 then continue end
+        local root = char.HumanoidRootPart
+        local closest, dist = nil, math.huge
+        for _, e in workspace.Characters.Enemies:GetChildren() do
+            local hum = e:FindFirstChild("Humanoid")
+            local eroot = e:FindFirstChild("HumanoidRootPart")
+            if hum and eroot and hum.Health > 0 then
+                local d = (root.Position - eroot.Position).Magnitude
+                if d < dist then
+                    dist = d
+                    closest = {Humanoid = hum, Root = eroot}
+                end
+            end
+        end
+        if closest then
+            local pos = closest.Root.Position + Vector3.new(0,30,0)
+            pcall(function()
+                Charge:FireServer(YOUR_CLASS, {Mousepos = pos})
+                Activate:FireServer(YOUR_CLASS, {Charge=100, Mousepos=pos, ComboNum=1}, 1, "PaintballBlast")
+                Damage:FireServer(closest.Humanoid, YOUR_CLASS)
+            end)
+        end
+    end
+end)
+
+print("SBBF v9.5 Premium UI loaded (Disruptor)")
+]]
+
+    -- ==================== Paintball script (the full version we built) ====================
+    local paintballCode = [[
+-- SBBF v9.5 - Paintball (Legit Kill Aura + Normal Kill Aura - NO TELEPORT)
+-- Aim Assist on Shift Lock
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Workspace = workspace
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
+local Camera = Workspace.CurrentCamera
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Charge = Remotes:WaitForChild("Charge")
+local Activate = Remotes:WaitForChild("Activate")
+local Damage = Remotes:WaitForChild("Damage")
+local YOUR_CLASS = "Paintball"
+
+local CFG = {
+    NormalKillAura = false,
+    LegitKillAura = true,
+    InfStamina = true,
+    CustomSpeedEnabled = false,
+    CustomSpeedValue = 80,
+    AimAssist = true,
+    AimSmoothness = 0.20,
+    AimPart = "HumanoidRootPart",
+}
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "SBBF_v9_Minimal"
+sg.Parent = game.CoreGui
+
+local main = Instance.new("Frame", sg)
+main.Size = UDim2.new(0, 340, 0, 440)
+main.Position = UDim2.new(0.5, -170, 0.5, -220)
+main.BackgroundColor3 = Color3.fromRGB(18,18,25)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 12)
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(0, 170, 255)
+stroke.Thickness = 2
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,50)
+title.BackgroundTransparency = 1
+title.Text = "SBBF v9.5 • Paintball (No Teleport)"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+title.TextColor3 = Color3.fromRGB(255,255,255)
+
+local close = Instance.new("TextButton", main)
+close.Size = UDim2.new(0,36,0,36)
+close.Position = UDim2.new(1,-42,0,8)
+close.Text = "×"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 20
+close.TextColor3 = Color3.new(1,1,1)
+close.BackgroundColor3 = Color3.fromRGB(220,60,60)
+local closeCorner = Instance.new("UICorner", close)
+closeCorner.CornerRadius = UDim.new(1,0)
+close.MouseButton1Click:Connect(function() sg:Destroy() end)
+
+local yPos = 65
+local function createToggle(text, default, callback)
+    local holder = Instance.new("Frame", main)
+    holder.Size = UDim2.new(0.92, 0, 0, 48)
+    holder.Position = UDim2.new(0.04, 0, 0, yPos)
+    holder.BackgroundColor3 = Color3.fromRGB(28,28,38)
+    holder.BorderSizePixel = 0
+    local hc = Instance.new("UICorner", holder)
+    hc.CornerRadius = UDim.new(0,10)
+    
+    local label = Instance.new("TextLabel", holder)
+    label.Size = UDim2.new(0.62,0,1,0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 16
+    label.TextColor3 = Color3.fromRGB(235,235,245)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Position = UDim2.new(0.04,0,0,0)
+    
+    local toggle = Instance.new("TextButton", holder)
+    toggle.Size = UDim2.new(0, 82, 0, 32)
+    toggle.Position = UDim2.new(1, -95, 0.5, -16)
+    toggle.Font = Enum.Font.GothamBold
+    toggle.TextSize = 15
+    toggle.TextColor3 = Color3.new(1,1,1)
+    local tc = Instance.new("UICorner", toggle)
+    tc.CornerRadius = UDim.new(1,0)
+    
+    local state = default
+    local function update()
+        toggle.Text = state and "ON" or "OFF"
+        toggle.BackgroundColor3 = state and Color3.fromRGB(0, 205, 120) or Color3.fromRGB(75,75,85)
+    end
+    
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        update()
+        callback(state)
+    end)
+    update()
+    
+    yPos = yPos + 58
+end
+
+local function createSpeedInput()
+    local holder = Instance.new("Frame", main)
+    holder.Size = UDim2.new(0.92, 0, 0, 110)
+    holder.Position = UDim2.new(0.04, 0, 0, yPos)
+    holder.BackgroundColor3 = Color3.fromRGB(28,28,38)
+    holder.BorderSizePixel = 0
+    local hc = Instance.new("UICorner", holder)
+    hc.CornerRadius = UDim.new(0,10)
+    
+    local toggle = Instance.new("TextButton", holder)
+    toggle.Size = UDim2.new(0, 82, 0, 32)
+    toggle.Position = UDim2.new(0.04, 0, 0, 12)
+    toggle.Font = Enum.Font.GothamBold
+    toggle.TextSize = 15
+    toggle.TextColor3 = Color3.new(1,1,1)
+    toggle.BackgroundColor3 = Color3.fromRGB(75,75,85)
+    toggle.Text = "OFF"
+    local tc = Instance.new("UICorner", toggle)
+    tc.CornerRadius = UDim.new(1,0)
+    
+    local label = Instance.new("TextLabel", holder)
+    label.Size = UDim2.new(0.5,0,0,32)
+    label.Position = UDim2.new(0.28, 0, 0, 12)
+    label.BackgroundTransparency = 1
+    label.Text = "Custom Speed (only when ON)"
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 16
+    label.TextColor3 = Color3.fromRGB(235,235,245)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local textbox = Instance.new("TextBox", holder)
+    textbox.Size = UDim2.new(0.92, 0, 0, 36)
+    textbox.Position = UDim2.new(0.04, 0, 0, 55)
+    textbox.BackgroundColor3 = Color3.fromRGB(40,40,55)
+    textbox.TextColor3 = Color3.fromRGB(200,220,255)
+    textbox.PlaceholderText = "Enter speed (e.g. 80)"
+    textbox.Text = tostring(CFG.CustomSpeedValue)
+    textbox.Font = Enum.Font.Gotham
+    textbox.TextSize = 16
+    textbox.ClearTextOnFocus = false
+    local tbc = Instance.new("UICorner", textbox)
+    tbc.CornerRadius = UDim.new(0,8)
+    
+    local state = CFG.CustomSpeedEnabled
+    local function updateToggle()
+        toggle.Text = state and "ON" or "OFF"
+        toggle.BackgroundColor3 = state and Color3.fromRGB(0, 205, 120) or Color3.fromRGB(75,75,85)
+        CFG.CustomSpeedEnabled = state
+    end
+    
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        updateToggle()
+    end)
+    updateToggle()
+    
+    local function applySpeed()
+        if not CFG.CustomSpeedEnabled then return end
+        local num = tonumber(textbox.Text)
+        if num and num > 0 and Player.Character then
+            CFG.CustomSpeedValue = num
+            Player.Character.Humanoid.WalkSpeed = num
+        end
+    end
+    
+    textbox.FocusLost:Connect(applySpeed)
+    textbox.MouseLeave:Connect(applySpeed)
+    
+    yPos = yPos + 120
+end
+
+createToggle("Legit Kill Aura (4-9s, 50% miss)", true, function(v) 
+    CFG.LegitKillAura = v
+    if v then CFG.NormalKillAura = false end
+end)
+createToggle("Normal Kill Aura (Fast - NO TELEPORT)", false, function(v) 
+    CFG.NormalKillAura = v
+    if v then CFG.LegitKillAura = false end
+end)
+createToggle("Infinite Stamina (Shows 100)", true, function(v) CFG.InfStamina = v end)
+createToggle("Aim Assist (Shift Lock)", true, function(v) CFG.AimAssist = v end)
+createSpeedInput()
+
+-- AIM ASSIST (SHIFT LOCK)
+local AimTarget = nil
+
+local function FindBestTarget()
+    local char = Player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local hrp = char.HumanoidRootPart
+    
+    local targets = {}
+    for _, enemy in Workspace.Characters.Enemies:GetChildren() do
+        local hum = enemy:FindFirstChild("Humanoid")
+        if not hum or hum.Health <= 0 then continue end
+        local root = enemy:FindFirstChild("HumanoidRootPart")
+        if not root then continue end
+        local part = enemy:FindFirstChild(CFG.AimPart) or root
+        local dist = (hrp.Position - root.Position).Magnitude
+        table.insert(targets, {
+            Model = enemy,
+            Root = root,
+            AimPart = part,
+            Distance = dist,
+            IsBoss = enemy.Name:match("Boss") or enemy.Name:match("Elite") or enemy.Name:match("King")
+        })
+    end
+    
+    if #targets == 0 then return nil end
+    
+    table.sort(targets, function(a,b)
+        if a.IsBoss and not b.IsBoss then return true end
+        if not a.IsBoss and b.IsBoss then return false end
+        return a.Distance < b.Distance
+    end)
+    
+    return targets[1]
+end
+
+local ShiftLockEnabled = false
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.LeftShift then
+        ShiftLockEnabled = true
+        AimTarget = FindBestTarget()
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.LeftShift then
+        ShiftLockEnabled = false
+        AimTarget = nil
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not CFG.AimAssist then 
+        AimTarget = nil
+        return 
+    end
+    
+    local isShiftLock = UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter
+    if not isShiftLock then 
+        AimTarget = nil
+        return 
+    end
+    
+    if not AimTarget or not AimTarget.AimPart or not AimTarget.AimPart.Parent then
+        AimTarget = FindBestTarget()
+        if not AimTarget then return end
+    end
+    
+    local aimPos = AimTarget.AimPart.Position
+    local currentCFrame = Camera.CFrame
+    local currentLook = currentCFrame.LookVector
+    local targetDir = (aimPos - currentCFrame.Position).Unit
+    
+    local newLook = currentLook:Lerp(targetDir, CFG.AimSmoothness)
+    newLook = newLook.Unit
+    
+    Camera.CFrame = CFrame.new(currentCFrame.Position, currentCFrame.Position + newLook)
+end)
+
+-- LEGIT KILL AURA
+task.spawn(function()
+    while task.wait(math.random(4,9)) do
+        if not CFG.LegitKillAura then continue end
+        
+        local char = Player.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
+        
+        local targets = {}
+        for _, enemy in Workspace.Characters.Enemies:GetChildren() do
+            local hum = enemy:FindFirstChild("Humanoid")
+            if not hum or hum.Health <= 0 then continue end
+            local root = enemy:FindFirstChild("HumanoidRootPart")
+            if not root then continue end
+            local dist = (char.HumanoidRootPart.Position - root.Position).Magnitude
+            table.insert(targets, {
+                Enemy = enemy, Humanoid = hum, Root = root,
+                Distance = dist,
+                IsBoss = enemy.Name:match("Boss") or enemy.Name:match("Elite") or enemy.Name:match("King")
+            })
+        end
+        
+        if #targets == 0 then continue end
+        
+        table.sort(targets, function(a,b)
+            if a.IsBoss and not b.IsBoss then return false end
+            if not a.IsBoss and b.IsBoss then return true end
+            return a.Distance < b.Distance
+        end)
+        
+        local best = targets[1]
+        local eRoot = best.Root
+        
+        local isMiss = math.random() < 0.5
+        local offset = Vector3.new(
+            isMiss and math.random(-60,60) or math.random(-12,12),
+            math.random(30,50),
+            isMiss and math.random(-60,60) or math.random(-12,12)
+        )
+        local targetPos = eRoot.Position + offset
+        
+        pcall(function() Charge:FireServer(YOUR_CLASS, {Mousepos = targetPos}) end)
+        task.wait(0.07)
+        pcall(function() Activate:FireServer(YOUR_CLASS, {Charge=100, Mousepos=targetPos, ComboNum=1}, 1, "PaintballBlast") end)
+        task.wait(0.07)
+        pcall(function() Damage:FireServer(best.Humanoid, YOUR_CLASS) end)
+    end
+end)
+
+-- NORMAL KILL AURA
+task.spawn(function()
+    while task.wait(0.24) do
+        if not CFG.NormalKillAura then continue end
+        local char = Player.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
+        local hrp = char.HumanoidRootPart
+        local targets = {}
+        
+        for _, enemy in Workspace.Characters.Enemies:GetChildren() do
+            local hum = enemy:FindFirstChild("Humanoid")
+            if not hum or hum.Health <= 0 then continue end
+            local root = enemy:FindFirstChild("HumanoidRootPart")
+            if not root then continue end
+            local dist = (hrp.Position - root.Position).Magnitude
+            table.insert(targets, {
+                Enemy = enemy, Humanoid = hum, Root = root,
+                Distance = dist,
+                IsBoss = enemy.Name:match("Boss") or enemy.Name:match("Elite") or enemy.Name:match("King")
+            })
+        end
+        
+        if #targets == 0 then continue end
+        
+        table.sort(targets, function(a,b)
+            if a.IsBoss and not b.IsBoss then return false end
+            if not a.IsBoss and b.IsBoss then return true end
+            return a.Distance < b.Distance
+        end)
+        
+        local best = targets[1]
+        local eRoot = best.Root
+        
+        local offset = Vector3.new(math.random(-14,14), math.random(34,52), math.random(-14,14))
+        local targetPos = eRoot.Position + offset
+        
+        pcall(function() Charge:FireServer(YOUR_CLASS, {Mousepos = targetPos}) end)
+        task.wait(0.07)
+        pcall(function() Activate:FireServer(YOUR_CLASS, {Charge=100, Mousepos = targetPos, ComboNum=1}, 1, "PaintballBlast") end)
+        task.wait(0.07)
+        pcall(function() Damage:FireServer(best.Humanoid, YOUR_CLASS) end)
+    end
+end)
+
+-- Infinite Stamina
+task.spawn(function()
+    while task.wait(0.1) do
+        if CFG.InfStamina then
+            if Player:FindFirstChild("Energy") then Player.Energy.Value = 100 end
+            local char = Player.Character
+            if char and char:FindFirstChild("Humanoid") then
+                local hum = char.Humanoid
+                if hum:GetAttribute("Stamina") then hum:SetAttribute("Stamina", 100) end
+            end
+        end
+    end
+end)
+
+-- Speed keeper
+task.spawn(function()
+    while task.wait(0.3) do
+        if CFG.CustomSpeedEnabled and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = CFG.CustomSpeedValue
+        end
+    end
+end)
+
+print("SBBF v9.5 – Aim Assist on SHIFT LOCK loaded")
+]]
+
+    -- ==================== Load functions ====================
+
+    btnDisruptor.MouseButton1Click:Connect(function()
+        sg:Destroy()
+        print("Launching Disruptor...")
+        loadstring(disruptorCode)()
+    end)
+
+    btnPaintball.MouseButton1Click:Connect(function()
+        sg:Destroy()
+        print("Launching Paintball...")
+        loadstring(paintballCode)()
+    end)
+end)
+
+if not success then
+    warn("Launcher failed: " .. tostring(err))
+end
+
+print("Launcher ready - pick Disruptor or Paintball")
+]]
+
+loadstring(code)()
